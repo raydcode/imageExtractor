@@ -7,7 +7,7 @@ import glob
 import pandas as pd
 import re
 import shutil
-
+import time
 # Constants :
 IMAGE_EXTRACT_PATH = 'downloads'
 COMPRESSED_OUTPUT_PATH = 'compressed'
@@ -37,10 +37,8 @@ def compressImages(folder_name):
         files = os.listdir(folder_name)
         # check Files Through Directory
         for file in files:
-            # print(file)
-            timestamp = str(datetime.now())
-            filepath = folder_name+"/"+file
-            dist_path = COMPRESSED_OUTPUT_PATH+"/"+timestamp+file
+            filepath = os.path.normpath(os.path.abspath(os.path.join(folder_name,file)))
+            dist_path = os.path.normpath(os.path.abspath(os.path.join(COMPRESSED_OUTPUT_PATH,file)))
             filesize = "%.2f" % (os.path.getsize(filepath)/BYTE_CONSTANT)
             if float(filesize) > BYTE_CONSTANT:
 
@@ -122,10 +120,12 @@ def download_images(images, folder_name):
                         # possibility of decode
                         r = str(r, 'utf-8')
                     except UnicodeDecodeError:
-                        dateTimeObj = str(datetime.now())
+                        file_name = str(time.time()) + ".jpg"
+            
+                        filepath = os.path.normpath(os.path.abspath(os.path.join(folder_name,file_name)))
                     
                         # After checking above condition, Image Download start
-                        with open(f"{folder_name}/{dateTimeObj}.jpg", "wb+") as f:
+                        with open(fr'{filepath}', "wb+") as f:
                             f.write(r)
 
                         # counting number of image downloaded
