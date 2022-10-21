@@ -113,14 +113,15 @@ def download_images(images, folder_name):
             # After getting Image Source URL
             # We will try to get the content of image
             try:
-                if not image_link == '':
+                if not image_link == '' and re.match(r'(https?://[^\s]+)', image_link):
                     r = requests.get(image_link).content
-                    #print(r)
+                    file_ext = image_link.split(".")[-1].split(" ")[0]
+                    file_ext = {True:file_ext,False:"jpg"} [file_ext in ["png","svg","jpeg","jpg","gif"]]
                     try:
                         # possibility of decode
                         r = str(r, 'utf-8')
                     except UnicodeDecodeError:
-                        file_name = str(time.time()) + ".jpg"
+                        file_name = str(time.time()) + "." +file_ext
             
                         filepath = os.path.normpath(os.path.abspath(os.path.join(folder_name,file_name)))
                     
