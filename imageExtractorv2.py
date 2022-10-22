@@ -39,10 +39,8 @@ def compressImages(folder_name):
         files = os.listdir(folder_name)
         # check Files Through Directory
         for file in files:
-            filepath = os.path.normpath(
-                os.path.abspath(os.path.join(folder_name, file)))
-            dist_path = os.path.normpath(os.path.abspath(
-                os.path.join(COMPRESSED_OUTPUT_PATH, file)))
+            filepath = pathFinder(folder_name,file)
+            dist_path = pathFinder(COMPRESSED_OUTPUT_PATH,file)
             filesize = "%.2f" % (os.path.getsize(filepath)/BYTE_CONSTANT)
             if float(filesize) > BYTE_CONSTANT:
                 im1 = Image.open(filepath)
@@ -55,6 +53,12 @@ def compressImages(folder_name):
         raise Exception()
 
 
+
+def pathFinder(path,file):
+    try:
+        return os.path.normpath(os.path.abspath(os.path.join(path,file)))
+    except:
+       pass
 
 # CREATE FOLDER
 def folder_create(name):
@@ -130,8 +134,7 @@ def download_images(images, folder_name):
                         r = str(r, 'utf-8')
                     except UnicodeDecodeError:
                         file_name = str(time.time()) + "." + file_ext
-                        filepath = os.path.normpath(os.path.abspath(
-                            os.path.join(folder_name, file_name)))
+                        filepath = pathFinder(folder_name,file_name)
                         # After checking above condition, Image Download start
                         with open(fr'{filepath}', "wb+") as f:
                             f.write(r)
