@@ -1,7 +1,6 @@
 from bs4 import *
 import requests
 import os
-from datetime import datetime
 from PIL import Image
 import glob
 import pandas as pd
@@ -12,23 +11,26 @@ import time
 IMAGE_EXTRACT_PATH = 'downloads'
 COMPRESSED_OUTPUT_PATH = 'compressed'
 BYTE_CONSTANT = 1024.0
-EXCEL_PATH='sample.xlsx'
+EXCEL_PATH = 'sample.xlsx'
 
 # creating data frame
 # importing excel file
+
+
 def FetchUrlFromExcel(path):
-    df = pd.read_excel(path)  
-    a=pd.DataFrame(df)
-    col_value=[]
-    url_list=[]
+    df = pd.read_excel(path)
+    a = pd.DataFrame(df)
+    col_value = []
+    url_list = []
     for i in list(a):
-        col_value+=a[i].tolist()
+        col_value += a[i].tolist()
     for b in col_value:
-        if(type(b) is str):
-            url=re.match(r'(https?://[^\s]+)', b)
-            if(bool(url) is True):
+        if (type(b) is str):
+            url = re.match(r'(https?://[^\s]+)', b)
+            if (bool(url) is True):
                 url_list.append(b)
-    return(list(set(url_list)))
+    return (list(set(url_list)))
+
 
 def compressImages(folder_name):
     try:
@@ -37,32 +39,37 @@ def compressImages(folder_name):
         files = os.listdir(folder_name)
         # check Files Through Directory
         for file in files:
-            filepath = os.path.normpath(os.path.abspath(os.path.join(folder_name,file)))
-            dist_path = os.path.normpath(os.path.abspath(os.path.join(COMPRESSED_OUTPUT_PATH,file)))
+            filepath = os.path.normpath(
+                os.path.abspath(os.path.join(folder_name, file)))
+            dist_path = os.path.normpath(os.path.abspath(
+                os.path.join(COMPRESSED_OUTPUT_PATH, file)))
             filesize = "%.2f" % (os.path.getsize(filepath)/BYTE_CONSTANT)
             if float(filesize) > BYTE_CONSTANT:
-
                 im1 = Image.open(filepath)
-                im1.save(dist_path, "JPEG", quality=10)
+                im1.save(dist_path, "JPEG", quality=12)
             else:
                 shutil.copyfile(filepath, dist_path)
-
-        
 
     # if folder exists with that name, ask another name
     except:
         raise Exception()
 
-    # image downloading start
-    # download_images(images, folder_name)
 
 
 # CREATE FOLDER
-def folder_create():
+def folder_create(name):
     try:
         # folder creation
-        if not (os.path.exists(IMAGE_EXTRACT_PATH)):
-            os.mkdir(IMAGE_EXTRACT_PATH)
+        if not (os.path.exists(name)):
+            os.mkdir(name)
+    # if folder exists with that name, ask another name
+    except:
+        pass
+def remove_folder(name):
+    try:
+        # folder creation
+        if (os.path.exists(name)):
+            shutil.rmtree(name)
     # if folder exists with that name, ask another name
     except:
         pass
@@ -116,15 +123,15 @@ def download_images(images, folder_name):
                 if not image_link == '' and re.match(r'(https?://[^\s]+)', image_link):
                     r = requests.get(image_link).content
                     file_ext = image_link.split(".")[-1].split(" ")[0]
-                    file_ext = {True:file_ext,False:"jpg"} [file_ext in ["png","svg","jpeg","jpg","gif"]]
+                    file_ext = {True: file_ext, False: "jpg"}[
+                        file_ext in ["png", "svg", "jpeg", "jpg", "gif"]]
                     try:
                         # possibility of decode
                         r = str(r, 'utf-8')
                     except UnicodeDecodeError:
-                        file_name = str(time.time()) + "." +file_ext
-            
-                        filepath = os.path.normpath(os.path.abspath(os.path.join(folder_name,file_name)))
-                    
+                        file_name = str(time.time()) + "." + file_ext
+                        filepath = os.path.normpath(os.path.abspath(
+                            os.path.join(folder_name, file_name)))
                         # After checking above condition, Image Download start
                         with open(fr'{filepath}', "wb+") as f:
                             f.write(r)
@@ -132,7 +139,7 @@ def download_images(images, folder_name):
                         # counting number of image downloaded
                         count += 1
             except:
-                raise 
+                raise
 
         # There might be possible, that all
         # images not download
@@ -148,11 +155,10 @@ def download_images(images, folder_name):
 
 
 def main(urls):
-      # Call folder create function
-    folder_create()
+    # Call folder create function
+    folder_create(IMAGE_EXTRACT_PATH)
     for url in urls:
-        
-        
+
         # content of URL
         r = requests.get(url)
 
@@ -161,17 +167,12 @@ def main(urls):
 
         # find all images in URL
         images = soup.findAll('img')
-        
-        
+
         # image downloading start
         download_images(images, IMAGE_EXTRACT_PATH)
         compressImages(IMAGE_EXTRACT_PATH)
-    shutil.rmtree(IMAGE_EXTRACT_PATH)
-  
+    remove_folder(IMAGE_EXTRACT_PATH)
 
-
-# take url
-#url = input("Enter URL:- ")
 
 # CALL MAIN FUNCTION
 main(FetchUrlFromExcel(EXCEL_PATH))
