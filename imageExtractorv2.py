@@ -55,14 +55,14 @@ def pathFinder(path,file):
        pass
 
 
-def folder_create(name):
+def folderCreate(name):
     try:
 
         if not (os.path.exists(name)):
             os.mkdir(name)
     except:
         pass
-def remove_folder(name):
+def removeFolder(name):
     try:
         if (os.path.exists(name)):
             shutil.rmtree(name)
@@ -71,7 +71,7 @@ def remove_folder(name):
 
 
 
-def download_images(images, folder_name):
+def downloadImages(images, folder_name):
     count = 0
     print(f"Total {len(images)} Image Found!")
     if len(images) != 0:
@@ -112,14 +112,14 @@ def download_images(images, folder_name):
 
 
 def main(urls):
-    folder_create(IMAGE_EXTRACT_PATH)
+    folderCreate(IMAGE_EXTRACT_PATH)
     for url in urls:
         r = requests.get(url)
         soup = BeautifulSoup(r.text, 'html.parser')
         images = soup.findAll('img')
-        download_images(images, IMAGE_EXTRACT_PATH)
+        downloadImages(images, IMAGE_EXTRACT_PATH)
         compressImages(IMAGE_EXTRACT_PATH)
-    remove_folder(IMAGE_EXTRACT_PATH)
+    removeFolder(IMAGE_EXTRACT_PATH)
 
 
 main(FetchUrlFromExcel(EXCEL_PATH))
